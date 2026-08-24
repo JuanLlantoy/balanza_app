@@ -21,17 +21,22 @@
 </head>
 <body>
   <script>
-    // Registro del Service Worker para forzar actualización en iOS/Safari
     if ('serviceWorker' in navigator) {
+      // 1. Forzar la eliminación de workers antiguos guardados en el iPhone
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+        }
+      });
+
+      // 2. Registrar la versión actual
       window.addEventListener('load', function () {
-        // Incrementa solo este número (?v=1.0.2, ?v=1.0.3, etc.) en cada publicación
-        navigator.serviceWorker.register('flutter_service_worker.js?v=1.0.1')
+        navigator.serviceWorker.register('flutter_service_worker.js?v=1.0.2')
           .then(function (reg) {
             reg.onupdatefound = function () {
               var installer = reg.installing;
               installer.onstatechange = function () {
                 if (installer.state === 'installed' && navigator.serviceWorker.controller) {
-                  // Si detecta nueva versión en el servidor, recarga la PWA
                   window.location.reload();
                 }
               };
@@ -41,7 +46,7 @@
     }
   </script>
 
-  <!-- Carga principal de Flutter Web (Sin parámetros URL para evitar errores) -->
+  <!-- Carga principal de Flutter Web -->
   <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
