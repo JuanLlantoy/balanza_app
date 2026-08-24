@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <base href="/balanza_app/">
+  <base href="./">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
@@ -22,39 +22,15 @@
 <body>
   <script>
     if ('serviceWorker' in navigator) {
-      // 1. Forzar la eliminación de workers antiguos guardados en el iPhone
       navigator.serviceWorker.getRegistrations().then(function(registrations) {
         for(let registration of registrations) {
           registration.unregister();
         }
       });
-
-      // 2. Registrar la versión actual
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('flutter_service_worker.js?v=1.0.2')
-          .then(function (reg) {
-            reg.onupdatefound = function () {
-              var installer = reg.installing;
-              installer.onstatechange = function () {
-                if (installer.state === 'installed' && navigator.serviceWorker.controller) {
-                  window.location.reload();
-                }
-              };
-            };
-          });
-      });
     }
   </script>
 
-  <!-- Carga de Flutter Web forzando renderizador HTML compatible -->
-  <script>
-    {{flutter_js}}
-    {{flutter_build_config}}
-    _flutter.loader.load({
-      config: {
-        renderer: "html"
-      }
-    });
-  </script>
+  <!-- Carga limpia de Flutter Web -->
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
