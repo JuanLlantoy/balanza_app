@@ -316,8 +316,13 @@ class RelatorioPDFService {
       ),
     );
 
-    final bytes = await pdf.save();
-    await saveAndLaunchPdf(bytes, 'Relatorio_Calibracao_$tagBalanca.pdf');
+    try {
+  final bytes = await pdf.save();
+  await saveAndLaunchPdf(bytes, 'Relatorio_Calibracao_$tagBalanca.pdf');
+} catch (e) {
+  print('Error al generar o lanzar el PDF: $e');
+}
+
   }
 
   static pw.Widget _buildTituloSeccion(String texto, PdfColor color) {

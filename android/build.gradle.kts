@@ -3,13 +3,6 @@ allprojects {
         google()
         mavenCentral()
     }
-    configurations.all {
-        resolutionStrategy.eachDependency {
-            if (requested.group == "androidx.core") {
-                useVersion("1.6.0")
-            }
-        }
-    }
 }
 
 val newBuildDir: Directory =
@@ -28,6 +21,16 @@ subprojects {
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)
+}
+
+// FORZAR LA VERSIÓN DE ANDROIDX CORE EN TODOS LOS SUBPROYECTOS Y PLUGINS
+subprojects {
+    project.configurations.all {
+        resolutionStrategy {
+            force("androidx.core:core:1.13.1")
+            force("androidx.core:core-ktx:1.13.1")
+        }
+    }
 }
 
 subprojects {

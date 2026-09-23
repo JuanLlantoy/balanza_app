@@ -7,6 +7,7 @@ import 'package:ota_update/ota_update.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:country_flags/country_flags.dart';
+import 'Teste_caminhão.dart';
 Future<void> verificarActualizacionAndroid() async {
   if (kDebugMode) return;
   try {
@@ -239,7 +240,7 @@ class BalancaModuleScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2,
+      length: 3,
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(50.0),
@@ -259,6 +260,10 @@ class BalancaModuleScreen extends StatelessWidget {
                   icon: const Icon(Icons.assignment),
                   text: AppTranslations.getText(currentLang, 'iniciar_reporte'),
                 ),
+                Tab(
+                  icon: const Icon(Icons.assignment),
+                  text: AppTranslations.getText(currentLang, 'Teste_Caminhão'),
+                ),
               ],
             ),
           ),
@@ -267,6 +272,8 @@ class BalancaModuleScreen extends StatelessWidget {
           children: [
             BalancaCalculadoraTab(lang: currentLang),
             BalancaReporteTab(lang: currentLang),
+            CamiaoTab(lang: currentLang),
+            
           ],
         ),
       ),
@@ -1007,19 +1014,23 @@ void _calcularTodo() {
   final _err44Controller = TextEditingController();
 
   // 7. Executores
-  final List<Map<String, TextEditingController>> _executores = [
-    {'nome': TextEditingController(), 'esp': TextEditingController(text: 'INSTRUMENTISTA')},
-    {'nome': TextEditingController(), 'esp': TextEditingController(text: 'ELECTRICISTA')},
-    {'nome': TextEditingController(), 'esp': TextEditingController(text: 'INSTRUMENTISTA')},
-  ];
+  final List<Map<String, TextEditingController>> _executores = List.generate(
+  6,
+  (i) => {
+    'nome': TextEditingController(),
+    'esp': TextEditingController(text: i % 2 == 0 ? 'INSTRUMENTISTA' : 'ELECTRICISTA'),
+  },
+);
 
 @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+void initState() {
+  super.initState();
+  WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (mounted) {
       _calcularTodo();
-    });
-  }
+    }
+  });
+}
 @override
   void dispose() {
     _tagController.dispose();
@@ -1117,29 +1128,32 @@ _err44Controller.dispose();
   }
 
 Widget _buildTextField(
-    String label, 
-    TextEditingController controller, {
-    TextInputType keyboardType = TextInputType.text, 
-    bool readOnly = false,
-    ValueChanged<String>? onChanged, // <--- Se agrega el callback opcional
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: TextField(
-        controller: controller,
-        readOnly: readOnly,
-        onChanged: onChanged, // <--- Se vincula directamente al TextField
-        keyboardType: keyboardType,
-        style: const TextStyle(fontSize: 13),
-        decoration: InputDecoration(
-          labelText: label,
-          isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          border: const OutlineInputBorder(),
-        ),
-      ),
-    );
-  }
+  String label,
+  TextEditingController controller, {
+  TextInputType keyboardType = TextInputType.text,
+  bool readOnly = false,
+  ValueChanged<String>? onChanged,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4.0),
+    child: TextField(
+      controller: controller,
+      readOnly: readOnly,
+      onChanged: onChanged,
+      keyboardType: keyboardType,
+      enableSuggestions: false, // Desactiva el canal de sugerencias de Android IME
+      autocorrect: false,         // Evita que Android busque delegados de corrección inexistentes
+      style: const TextStyle(fontSize: 11),
+      decoration: InputDecoration(
+  hintText: label,
+  hintStyle: const TextStyle(fontSize: 10),
+  isDense: true,
+  contentPadding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+  border: const OutlineInputBorder(),
+),
+    ),
+  );
+}
 
   @override
   Widget build(BuildContext context) {
@@ -1417,18 +1431,21 @@ _buildTextField(AppTranslations.getText(widget.lang, 'Observação Span'), _obsS
           child: Text('$num'),
         );
       }).toList(),
-      onChanged: (val) {
-        if (val != null) {
-          setState(() {
-            _cantidadEjecutores = val;
-          });
-        }
-      },
+     onChanged: (val) {
+  if (val != null) {
+    setState(() {
+      _cantidadEjecutores = val;
+      for (int i = _cantidadEjecutores; i < _executores.length; i++) {
+        _executores[i]['nome']?.clear();
+      }
+    });
+  }
+},
     ),
-  ],
+  ],  
 ),
 const SizedBox(height: 12),
-              for (int i = 0; i < _executores.length; i++) ...[
+              for (int i = 0; i < _cantidadEjecutores; i++) ...[
                 Row(
                   children: [
                     Expanded(
